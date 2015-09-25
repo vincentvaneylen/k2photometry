@@ -290,7 +290,7 @@ def remove_known_outliers(t,f_t,Xc,Yc):
   
   
 
-def gotoflux(starname,outputpath='',inputpath='',campaign=2):
+def gotoflux(starname,outputpath='',inputpath='',campaign=2,cutoff_limit=2.):
   '''
   Read a specific pixel file and extract a light curve from it
   '''
@@ -305,7 +305,7 @@ def gotoflux(starname,outputpath='',inputpath='',campaign=2):
   dates,fluxes,kepmag,Xabs,Yabs = get_pixelfluxes(filename,inputfolder=inputpath,outputfolder=outputfolder,starname=starname)
   
   # Define aperture
-  aperture = find_aperture(dates,fluxes,plot=True,starname=starname,outputfolder=outputfolder,kepmag=kepmag)
+  aperture = find_aperture(dates,fluxes,plot=True,starname=starname,outputfolder=outputfolder,kepmag=kepmag,cutoff_limit=cutoff_limit)
   
   # Create light curve out of fluxes and a fixel aperture
   t,f_t,Xc,Yc = get_lightcurve(dates,fluxes,aperture,starname=starname,outputfolder=outputfolder,Xabs=Xabs,Yabs=Yabs)

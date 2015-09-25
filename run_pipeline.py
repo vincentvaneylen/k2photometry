@@ -21,7 +21,7 @@ import centroidfit
 import periodfinder
 
 
-def run(starname='',outputpath='',inputpath='',makelightcurve=True, find_transits=True,campaign=1):
+def run(starname='',outputpath='',inputpath='',makelightcurve=True, find_transits=True,campaign=1,chunksize=300,cutoff_limit=2.):
   # Takes strings with the EPIC number of the star and input/outputpath. Campaign number is used to complete the correct filename as downloaded from MAST
   # Set makelightcurve or find_transits to False to run only partial
   
@@ -29,13 +29,13 @@ def run(starname='',outputpath='',inputpath='',makelightcurve=True, find_transit
 
   if makelightcurve:
     # makes raw light curve from pixel file0
-    t,f_t,Xc,Yc = pixeltoflux.gotoflux(starname,outputpath=outputpath,inputpath=inputpath,campaign=campaign) 
+    t,f_t,Xc,Yc = pixeltoflux.gotoflux(starname,outputpath=outputpath,inputpath=inputpath,campaign=campaign,cutoff_limit=cutoff_limit) 
 
     # removes outlying data points where thrusters are fired
     t,f_t,Xc,Yc = centroidfit.find_thruster_events(t,f_t,Xc,Yc,starname=starname,outputpath=outputfolder) 
 
     # now fit a polynomial to the data (inspired by Spitzer data reduction), ignore first data points which are not usually very high-qual
-    [t,f_t] = centroidfit.spitzer_fit(t[90:],f_t[90:],Xc[90:],Yc[90:],starname=starname,outputpath=outputpath) 
+    [t,f_t] = centroidfit.spitzer_fit(t[90:],f_t[90:],Xc[90:],Yc[90:],starname=starname,outputpath=outputpath,chunksize=chunksize) 
     [t,f_t] = centroidfit.clean_data(t,f_t) # do a bit of cleaning	    
     outputlightcurvefolder = os.path.join(outputfolder,'lcs/') # one may want to put the LCs in a different folder e.g. to keep all together
     if not os.path.exists(outputlightcurvefolder):
