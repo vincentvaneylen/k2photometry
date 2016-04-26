@@ -1,20 +1,15 @@
 # general python files
-import sys
-import os
-import pylab as pl
 import numpy as np
-from lmfit import minimize, Parameters, report_errors
-
 
 def rebin_dataset(x,y,bin_size,medianbin=False):   ## FIXME calculate proper stdv in case of medianbinning
   #
   # Auxiliary function to do a binning, either mean or median
-  # 
+  #
   inds = np.array(x).argsort()
   x = x[inds]
   y = y[inds]
-  
-  
+
+
   x_rebinned = []
   y_rebinned = []
   stdv_bins = []
@@ -49,9 +44,9 @@ def rebin_dataset(x,y,bin_size,medianbin=False):   ## FIXME calculate proper std
 
 
 def running_sigma_clip(data,sigma=3,binsize=10,dependent_var=None):
-  # 
+  #
   # Sigma clipping (running): find local outliers
-  # 
+  #
   if dependent_var is not None:
     dep_var_clipped = []
   data_clipped = []
@@ -62,7 +57,7 @@ def running_sigma_clip(data,sigma=3,binsize=10,dependent_var=None):
     bin_begin = max(0, (i - binsize/2))
     bin_end = min(len(data),(i+binsize/2))
     the_bin = data[bin_begin:bin_end]
-    
+
     std = np.nanstd(np.sort(the_bin)[1:])
     median = np.median(the_bin)
     upperbound = (median + (sigma*std))
@@ -73,19 +68,19 @@ def running_sigma_clip(data,sigma=3,binsize=10,dependent_var=None):
       data_clipped.append(data[i])
       if dependent_var is not None:
 	dep_var_clipped.append(dependent_var[i])
-    
+
     i = i + 1
   if dependent_var is not None:
     return [data_clipped,dep_var_clipped,upperlist,lowerlist]
   else:
     return data_clipped
-    
+
 
 def sigma_clip(data,sigma=3,dependent_var=None,iterative=False,top_only=False):
-  # 
+  #
   # Auxiliary to sigma clip, option to run more than once, and to include only top data points (lower outliers may be transit events so we have to be careful what we clip)
-  # 
-  
+  #
+
   repeat=True
   while repeat:
     # sigma clip data for outliers beyond sigma
@@ -95,32 +90,32 @@ def sigma_clip(data,sigma=3,dependent_var=None,iterative=False,top_only=False):
     if top_only:
       unclipped = (data < (mean + sigma*std))
     else:
-      unclipped = (data < (mean + sigma*std))*(data > (mean - sigma*std)) # array of true and false 
-    
+      unclipped = (data < (mean + sigma*std))*(data > (mean - sigma*std)) # array of true and false
+
     data = data[unclipped]
-    
+
     if dependent_var is not None:
       dependent_var = np.array(dependent_var)
       dependent_var = dependent_var[unclipped]
-    
+
     if (iterative and (np.sum(~unclipped) > 0)):
       #	print 'Data points removed:'
       #print np.sum(~unclipped)
       #print 'Repeating..'
       repeat = True
-      
-    else: 
+
+    else:
       #print 'End of sigma clipping, data points removed:'
       #print np.sum(~unclipped)
       repeat = False
-    
-    
+
+
   if dependent_var is not None:
     return [data,dependent_var]
   else:
     return data
-  
-  
+
+
 def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     r"""Smooth (and optionally differentiate) data with a Savitzky-Golay filter.
     The Savitzky-Golay filter removes high frequency noise from data.

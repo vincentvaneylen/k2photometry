@@ -1,7 +1,7 @@
 """
 #
 # We NOTE that this function is written by Ian Crossfield and is not as such part of this K2 pipeline. It is only included here for ease of fitting simple transit models when wanted
-# 
+#
 -------------------------------------------------------
 The Mandel & Agol (2002) transit light curve equations.
 -------------------------------------------------------
@@ -34,7 +34,7 @@ The Mandel & Agol (2002) transit light curve equations.
      are slower than the corresponding IDL code by a factor of 5-10.
 
     For :func:`occultquad` I relied heavily on the IDL code of E. Agol
-    and J. Eastman.  
+    and J. Eastman.
 
     Function :func:`appellf1` comes from the mpmath compilation, and
     is adopted (with modification) for use herein in compliance with
@@ -54,7 +54,7 @@ The Mandel & Agol (2002) transit light curve equations.
    2011-04-22 11:08 IJMC: Finished, renamed occultation functions.
                           Cleaned up documentation. Published to
                           website.
-                          
+
    2011-04-25 17:32 IJMC: Fixed bug in :func:`ellpic_bulirsch`.
 
    2012-03-09 08:38 IJMC: Several major bugs fixed, courtesy of
@@ -67,8 +67,6 @@ The Mandel & Agol (2002) transit light curve equations.
 
 import numpy as np
 from scipy import special, misc
-import pdb
-import pylab as pl
 
 eps = np.finfo(float).eps
 zeroval = eps*1e6
@@ -88,7 +86,7 @@ def appelf1_ac(a, b1, b2, c, z1, z2, **kwargs):
     """
     # 2012-03-09 12:05 IJMC: Created
 
-    
+
 
 def appellf1(a,b1,b2,c,z1,z2,**kwargs):
     """Give the Appell hypergeometric function of two variables.
@@ -103,7 +101,7 @@ def appellf1(a,b1,b2,c,z1,z2,**kwargs):
        Adapted from the `mpmath <http://code.google.com/p/mpmath/>`_
        module, but using the scipy (instead of mpmath) Gauss
        hypergeometric function speeds things up.
-       
+
     :LICENSE:
        MPMATH Copyright (c) 2005-2010 Fredrik Johansson and mpmath
        contributors.  All rights reserved.
@@ -119,8 +117,8 @@ def appellf1(a,b1,b2,c,z1,z2,**kwargs):
        b. Redistributions in binary form must reproduce the above
           copyright notice, this list of conditions and the following
           disclaimer in the documentation and/or other materials
-          provided with the distribution.  
-     
+          provided with the distribution.
+
        c. Neither the name of mpmath nor the names of its contributors
           may be used to endorse or promote products derived from this
           software without specific prior written permission.
@@ -181,21 +179,21 @@ def appellf1(a,b1,b2,c,z1,z2,**kwargs):
     s = 0
     t = 1
     k = 0
-    
+
     while 1:
         #h = ctx.hyp2f1(a,b2,c,z2,zeroprec=ctx.prec,**kwargs)
         #print a.__class__, b2.__class__, c.__class__, z2.__class__
         h = special.hyp2f1(float(a), float(b2), float(c), float(z2))
         if not np.isfinite(h):
             break
-        term = t * h 
+        term = t * h
         if abs(term) < eps and abs(h) > 10*eps:
             break
         s += term
         k += 1
         t = (t*a*b1*z1) / (c*k)
         c += 1 # one
-        a += 1 # one 
+        a += 1 # one
         b1 += 1 # one
         #print k, h, term, s
         #if (k/200.)==int(k/200.) or k==171: pdb.set_trace()
@@ -241,7 +239,7 @@ def ellke(k):
 
     :INPUTS:
        k -- scalar or Numpy array
-      
+
     :OUTPUTS:
        ek, kk
 
@@ -249,7 +247,7 @@ def ellke(k):
        Adapted from the IDL function of the same name by J. Eastman (OSU).
        """
     # 2011-04-19 09:15 IJC: Adapted from J. Eastman's IDL code.
-    
+
     m1 = 1. - k**2
     logm1 = np.log(m1)
 
@@ -265,8 +263,8 @@ def ellke(k):
 
     ee1 = 1. + m1*(a1 + m1*(a2 + m1*(a3 + m1*a4)))
     ee2 = m1 * (b1 + m1*(b2 + m1*(b3 + m1*b4))) * (-logm1)
-    
-    # Second kind:     
+
+    # Second kind:
     a0 = 1.38629436112
     a1 = 0.09666344259
     a2 = 0.03590092383
@@ -282,7 +280,7 @@ def ellke(k):
     ek2 = (b0 + m1*(b1 + m1*(b2 + m1*(b3 + m1*b4)))) * logm1
 
     return ee1 + ee2, ek1 - ek2
-         
+
 
 def ellpic_bulirsch(n, k, tol=1000*eps, maxiter=1e4):
     """Compute the complete elliptical integral of the third kind
@@ -301,7 +299,7 @@ def ellpic_bulirsch(n, k, tol=1000*eps, maxiter=1e4):
     #                  to 1e-14), and fixed tolerance flag to the
     #                  maximum of all residuals.
     # 2013-04-13 21:31 IJMC: Changed 'max' call to 'any'; minor speed boost.
-    
+
     # Make p, k into vectors:
     #if not hasattr(n, '__iter__'):
     #    n = array([n])
@@ -318,10 +316,10 @@ def ellpic_bulirsch(n, k, tol=1000*eps, maxiter=1e4):
 
     kc = np.sqrt(1. - k**2)
     p = n + 1.
-    
+
     if min(p) < 0:
         print "Negative p"
-        
+
     # Initialize:
     m0 = np.array(1.)
     c = np.array(1.)
@@ -336,7 +334,7 @@ def ellpic_bulirsch(n, k, tol=1000*eps, maxiter=1e4):
         c = d/p + c
         g = e/p
         d = 2. * (f*g + d)
-        p = g + p; 
+        p = g + p;
         g = m0.copy()
         m0 = kc + m0
         if ((np.abs(1. - kc/g)) > tol).any():
@@ -351,7 +349,7 @@ def ellpic_bulirsch(n, k, tol=1000*eps, maxiter=1e4):
         ## For debugging:
         #print min(np.abs(1. - kc/g)) > tol
         #print 'tolerance>>', tol
-        #print 'minimum>>  ', min(np.abs(1. - kc/g))  
+        #print 'minimum>>  ', min(np.abs(1. - kc/g))
         #print 'maximum>>  ', max(np.abs(1. - kc/g)) #, (np.abs(1. - kc/g))
 
     return .5 * np.pi * (c*m0 + d) / (m0 * (m0 + p))
@@ -383,7 +381,7 @@ def z2dt_circular(per, inc, ars, z):
 
 def t2z(tt, per, inc, hjd, ars, ecc=0, longperi=0, transitonly=False, occultationonly=False):
     """Convert HJD (time) to transit crossing parameter z.
-    
+
     :INPUTS:
         tt --  scalar. transit ephemeris
 
@@ -427,7 +425,7 @@ def t2z(tt, per, inc, hjd, ars, ecc=0, longperi=0, transitonly=False, occultatio
     #if not p.transit:
     #    print "Must use a transiting exoplanet!"
     #    return False
-    
+
     #import analysis as an ## NEED TO IMPORT THIS FOR NON ZERO ECC
 
 
@@ -453,7 +451,7 @@ def t2z(tt, per, inc, hjd, ars, ecc=0, longperi=0, transitonly=False, occultatio
             longperi = 180.
         f = an.trueanomaly(ecc, (2*np.pi/per) * (hjd - tt))
         z = ars * (1. - ecc**2) * np.sqrt(1. - (np.sin(longperi + f) * np.sin(inc*np.pi/180.))**2) / \
-            (1. + ecc * np.cos(f)) 
+            (1. + ecc * np.cos(f))
 
     return z
 
@@ -535,7 +533,7 @@ def occultuniform(z, p, complement=False, verbose=False):
             if (i1.sum()+i2.sum()+i3.sum()+i4.sum() <> z.size):
                 print "warning -- indexing didn't get the right number of values"
 
-        
+
 
     else:  # scalar entered
         if (1+p)<=z:
@@ -550,7 +548,7 @@ def occultuniform(z, p, complement=False, verbose=False):
             fsecondary = p2
         elif z<=(p-1):
             fsecondary = 1.
-        
+
     if pneg:
         fsecondary *= -1
 
@@ -558,7 +556,7 @@ def occultuniform(z, p, complement=False, verbose=False):
         return fsecondary
     else:
         return 1. - fsecondary
-    
+
 
 def depthchisq(z, planet, data, ddepth=[-.1,.1], ndepth=20, w=None):
     #z = transit.t2z(planet, planet.i, hjd, 0.211)
@@ -585,7 +583,7 @@ def depthchisq(z, planet, data, ddepth=[-.1,.1], ndepth=20, w=None):
 def integral_smallplanet_nonlinear(z, p, cn, lower, upper):
     """Return the integral in I*(z) in Eqn. 8 of Mandel & Agol (2002).
     -- Int[I(r) 2r dr]_{z-p}^{1}, where:
-    
+
     :INPUTS:
          z = scalar or array.  Distance between center of star &
              planet, normalized by the stellar radius.
@@ -611,7 +609,7 @@ def integral_smallplanet_nonlinear(z, p, cn, lower, upper):
     #a = (z - p)**2
     lower = np.array(lower, copy=True)
     upper = np.array(upper, copy=True)
-    return eval_int_at_limit(upper, cn) - eval_int_at_limit(lower, cn) 
+    return eval_int_at_limit(upper, cn) - eval_int_at_limit(lower, cn)
 
 def eval_int_at_limit(limit, cn):
     """Evaluate the integral at a specified limit (upper or lower)"""
@@ -636,7 +634,7 @@ def eval_int_at_limit(limit, cn):
 
     return ret
 
-        
+
 
 def smallplanet_nonlinear(*arg, **kw):
     """Placeholder for backwards compatibility with my old code.  The
@@ -663,7 +661,7 @@ def occultnonlin_small(z,p, cn):
               a shorter sequence is entered, the later values will be
               set to zero.
 
-    :NOTE: 
+    :NOTE:
        I had to divide the effect at the near-edge of the light curve
        by pi for consistency; this factor was not in Mandel & Agol, so
        I may have coded something incorrectly (or there was a typo).
@@ -720,7 +718,7 @@ def occultnonlin_small(z,p, cn):
     else:
         Istar_edge = integral_smallplanet_nonlinear(None, p, cn, \
                                                     np.sqrt(aind1), np.array([0.])) / aind1
-        
+
         Istar_inside = integral_smallplanet_nonlinear(None, p, cn, \
                                               np.sqrt(1. - a[ind2]), \
                                               np.sqrt(1. - b[ind2])) / \
@@ -752,7 +750,7 @@ def occultquad(z,p0, gamma, retall=False, verbose=False):
            gamma is used, then you're assuming linear limb-darkening.
 
     :OPTIONS:
-        retall -- bool.  
+        retall -- bool.
            If True, in addition to the light curve return the
            uniform-disk light curve, lambda^d, and eta^d parameters.
            Using these quantities allows for quicker model generation
@@ -785,13 +783,13 @@ def occultquad(z,p0, gamma, retall=False, verbose=False):
          F1, Funi, lambdad, etad = transit.occultquad(z, p, gammas, retall=True)
 
          gammas = [.35, .55]
-         F2 = 1. - ((1. - gammas[0] - 2.*gammas[1])*(1. - F1) + 
-            (gammas[0] + 2.*gammas[1])*(lambdad + 2./3.*(p > z)) + gammas[1]*etad) / 
+         F2 = 1. - ((1. - gammas[0] - 2.*gammas[1])*(1. - F1) +
+            (gammas[0] + 2.*gammas[1])*(lambdad + 2./3.*(p > z)) + gammas[1]*etad) /
             (1. - gammas[0]/3. - gammas[1]/6.)
          figure()
          plot(x, F1, x, F2)
          legend(['F1', 'F2'])
-         
+
 
     :SEE ALSO:
        :func:`t2z`, :func:`occultnonlin_small`, :func:`occultuniform`
@@ -857,7 +855,7 @@ def occultquad(z,p0, gamma, retall=False, verbose=False):
 
     # Define the many necessary indices for the different cases:
     pgt0 = p > 0
-    
+
     i01 = pgt0 * (z >= (1. + p))
     i02 = pgt0 * (z > (.5 + np.abs(p - 0.5))) * (z < (1. + p))
     i03 = pgt0 * (p < 0.5) * (z > p) * (z < (1. - p))
@@ -882,10 +880,10 @@ def occultquad(z,p0, gamma, retall=False, verbose=False):
     any11 = i11.any()
     #print n01, n02, n03, n04, n05, n06, n07, n08, n09, n10, n11
     if verbose:
-        allind = i01 + i02 + i03 + i04 + i05 + i06 + i07 + i08 + i09 + i10 + i11 
+        allind = i01 + i02 + i03 + i04 + i05 + i06 + i07 + i08 + i09 + i10 + i11
         nused = (i01.sum() + i02.sum() + i03.sum() + i04.sum() + \
                      i05.sum() + i06.sum() + i07.sum() + i08.sum() + \
-                     i09.sum() + i10.sum() + i11.sum()) 
+                     i09.sum() + i10.sum() + i11.sum())
 
         print "%i/%i indices used" % (nused, i01.size)
         if not allind.all():
@@ -954,7 +952,7 @@ def occultquad(z,p0, gamma, retall=False, verbose=False):
     #ellipe, ellipk = ellke(0.5/ k)  # This is what the paper says
     if any07:
         ellipe, ellipk = ellke(0.5/ p)  # Corrected typo (1/2k -> 1/2p), according to J. Eastman
-        lambdad[i07] = 1./3. + (16.*p*(2*p2 - 1.)*ellipe - 
+        lambdad[i07] = 1./3. + (16.*p*(2*p2 - 1.)*ellipe -
                                 (1. - 4*p2)*(3. - 8*p2)*ellipk / p) / ninePi
 
 
@@ -987,16 +985,16 @@ def occultquad(z,p0, gamma, retall=False, verbose=False):
     #etad[ilam3] = \
     #    (0.5/np.pi) * (kappa1 + kappa0*p2*(p2 + 2*z2ilam3) - \
     #                    0.25*(1. + 5*p2 + z2ilam3) * \
-    #                    np.sqrt((1. - a[ilam3]) * (b[ilam3] - 1.))) 
+    #                    np.sqrt((1. - a[ilam3]) * (b[ilam3] - 1.)))
     etad[ilam3] = \
         (0.5/np.pi) * ((np.arccos((1-p2+z2ilam3)/(twoZilam3))) + (np.arccos((p2+z2ilam3-1)/(p*twoZilam3)))*p2*(p2 + 2*z2ilam3) - \
                         0.25*(1. + 5*p2 + z2ilam3) * \
-                        np.sqrt((1. - a[ilam3]) * (b[ilam3] - 1.))) 
+                        np.sqrt((1. - a[ilam3]) * (b[ilam3] - 1.)))
 
 
     # Eta_2:
     etad[ilam2 + i04 + i05 + i10] = 0.5 * p2 * (p2 + 2. * z2[ilam2 + i04 + i05 + i10])
-    
+
 
     # We're done!
 
@@ -1047,7 +1045,7 @@ def occultnonlin(z,p0, cn):
     :SEE ALSO:
        :func:`t2z`, :func:`occultnonlin_small`, :func:`occultuniform`, :func:`occultquad`
 
-    :NOTES: 
+    :NOTES:
         Scipy is much faster than mpmath for computing the Beta and
         Gauss hypergeometric functions.  However, Scipy does not have
         the Appell hypergeometric function -- the current version is
@@ -1076,7 +1074,7 @@ def occultnonlin(z,p0, cn):
     n = np.arange(5, dtype=float)
     # Column vectors:
     cc = c.reshape(5, 1)
-    nn = n.reshape(5,1)  
+    nn = n.reshape(5,1)
     np4 = n + 4.
     nd4 = n / 4.
     twoOmega = 0.5*c[0] + 0.4*c[1] + c[2]/3. + 2.*c[3]/7. + 0.25*c[4]
@@ -1085,7 +1083,7 @@ def occultnonlin(z,p0, cn):
     b = (z + p)**2
     am1 = a - 1.
     bma = b - a
-    
+
     k = 0.5 * np.sqrt(-am1 / (z * p))
     p2 = p**2
     z2 = z**2
@@ -1121,7 +1119,7 @@ def occultnonlin(z,p0, cn):
                  special.hyp2f1(0.5, 0.5, 0.25*nn + 2.5, -am1[iN]/bma[iN]))
 
     if iM.any():
-        termM = myappellf1(0.5, -0.25*nn[1:4] - 1., 1., 1., -bma[iM]/am1[iM], -bma[iM]/a[iM]) 
+        termM = myappellf1(0.5, -0.25*nn[1:4] - 1., 1., 1., -bma[iM]/am1[iM], -bma[iM]/a[iM])
         M[:, iM] = ((-am1[iM])**(0.25*nn[1:4] + 1.)) * \
             (((z2[iM] - p2)/a[iM]) * termM - \
                  special.hyp2f1(-0.25*nn[1:4] - 1., 0.5, 1., -bma[iM]/am1[iM]))
@@ -1171,7 +1169,7 @@ def occultnonlin(z,p0, cn):
         (c0 * (1. - p2) + c[-1] * (0.5 - p2*(1. - 0.5*p2 - z2[i09])) - \
              2*(M[:, i09] * cc[1:4] / (nn[1:4] + 4.)).sum(0))
 
-    # Case 10: 
+    # Case 10:
     F[i10] = (2. / twoOmega) * ((c/np4) * (1. - p2)**(nd4 + 1.)).sum()
 
     # Case 11:
@@ -1195,12 +1193,12 @@ def modeltransit(params, func, per, t):
 
         the stellar radius in units of orbital distance (Rstar/a),
 
-        planet-to-star radius ratio (Rp/Rstar), 
+        planet-to-star radius ratio (Rp/Rstar),
 
         stellar flux (F0),
 
         the limb-darkening parameters u1 and u2:
-             
+
           EITHER:
             gamma1,  gamma2  -- quadratic limb-darkening coefficients
 
@@ -1232,7 +1230,7 @@ def modeltransit(params, func, per, t):
     #z[abs(((t - params[0] + params[1]*.25)/per % 1) - 0.5) < 0.43] = 10.
 
     #pdb.set_trace()
-    
+
     if len(params)>5:
         model = params[4] * func(z, params[3], params[5::])
     try:  # Limb-darkened
@@ -1258,10 +1256,10 @@ def modeltransit_general(params, t, NL, NP=1, errscale=1, smallplanet=True, svs=
 
         R*/a, the stellar radius in units of orbital distance,
 
-        Rp/R*, planet-to-star radius ratio, 
+        Rp/R*, planet-to-star radius ratio,
 
         the NP polynomial coefficients to normalize the data.
-             
+
           EITHER:
             F0 -- stellar flux _ONLY_ (set NP=1)
 
@@ -1270,7 +1268,7 @@ def modeltransit_general(params, t, NL, NP=1, errscale=1, smallplanet=True, svs=
             used as: numpy.polyval([p_1, ...], t)
 
         the NL limb-darkening parameters (cf. Claret+2011):
-             
+
           EITHER:
             u      -- linear limb-darkening (set NL=1)
 
@@ -1293,7 +1291,7 @@ def modeltransit_general(params, t, NL, NP=1, errscale=1, smallplanet=True, svs=
 
         multiplicative factors for the NS state vectors (passed in as 'svs')
 
-      t -- numpy array.  Time of observations.  
+      t -- numpy array.  Time of observations.
 
       smallplanet : bool
         This only matters for root-square and four-parameter nonlinear
@@ -1315,7 +1313,7 @@ def modeltransit_general(params, t, NL, NP=1, errscale=1, smallplanet=True, svs=
         the constant offset term), it is preferable that the state
         vectors are all mean-subtracted.
 
-    :NOTES:      
+    :NOTES:
 
       If quadratic or linear limb-darkening (L.D.) is used, the sum of
       the L.D. coefficients cannot exceed 1.  If they do, this routine
@@ -1385,7 +1383,7 @@ def modeltransit_general(params, t, NL, NP=1, errscale=1, smallplanet=True, svs=
     if NL<>0 and (sum(ld_params)>1 or sum(ld_params)<0):
         penalty_factor *= errscale
 
-    if NL==0:  # Uniform 
+    if NL==0:  # Uniform
         model = occultuniform(z, k)
 
     elif NL==2 or NL==1:  # Quadratic or Linear
@@ -1405,7 +1403,7 @@ def modeltransit_general(params, t, NL, NP=1, errscale=1, smallplanet=True, svs=
             model = occultnonlin(z, k, ld_params)
 
     model *= np.polyval(poly_params, t)
-    for ii in xrange(nsvs): 
+    for ii in xrange(nsvs):
         model += params[-ii-1] * svs[-ii-1]
 
     model *= penalty_factor
@@ -1424,7 +1422,7 @@ def modeleclipse(params, func, per, t):
 
         the stellar radius in units of orbital distance (Rstar/a),
 
-        planet-to-star radius ratio (Rp/Rstar), 
+        planet-to-star radius ratio (Rp/Rstar),
 
         eclipse depth (dimensionless),
 
@@ -1434,12 +1432,12 @@ def modeleclipse(params, func, per, t):
 
       func -- function to fit to data; presumably :func:`transit.occultuniform`
 
-      per -- float.  
+      per -- float.
         Orbital period,  OR
 
         None, if period is included in params
 
-      t -- numpy array.  
+      t -- numpy array.
          Time of observations (same units as Tc and per)
     """
     # 2011-05-30 16:56 IJMC: Created from modeltransit()
@@ -1487,7 +1485,7 @@ def modellightcurve(params, t, tfunc=occultuniform, nlimb=0, nchan=0):
           (T_{1,0}, ... T_{1,M-1}, ... T_{2,0}, ...).  The parameters
           affect the data multiplicatively as (1 + c_i), with the
           constraint that Prod_i(1+c_i) = 1.
-             
+
         the time of conjunction for each individual transit (T_t),
 
         the time of conjunction for each individual eclipse (T_e),
@@ -1498,7 +1496,7 @@ def modellightcurve(params, t, tfunc=occultuniform, nlimb=0, nchan=0):
 
         the stellar radius in units of orbital distance (Rstar/a),
 
-        planet-to-star radius ratio (Rp/Rstar), 
+        planet-to-star radius ratio (Rp/Rstar),
 
         stellar flux (F0),
 
@@ -1506,11 +1504,11 @@ def modellightcurve(params, t, tfunc=occultuniform, nlimb=0, nchan=0):
 
         minimum (cold-side) planet flux (Fdark),
 
-        phase curve offset (phi_0; 0 implies maximum flux near eclipse) 
+        phase curve offset (phi_0; 0 implies maximum flux near eclipse)
 
         OPTIONALLY:
           limb-darkening parameters (depending on tfunc):
-             
+
           EITHER:
             gamma1,  gamma2  -- quadratic limb-darkening coefficients
 
@@ -1568,7 +1566,7 @@ def modellightcurve(params, t, tfunc=occultuniform, nlimb=0, nchan=0):
         zt = t2z(tt, per, (180./np.pi)*np.arccos(b * ra), t, 1./ra, ecc)
         ze = t2z(te, per, (180./np.pi)*np.arccos(b * ra), t, 1./ra, ecc)
         inc = np.arccos(cosi)
-        
+
 
     # Solve for t given z0, such that  z0 - t2z(t) = 0.
     def residualz(tguess, z0):
@@ -1582,7 +1580,7 @@ def modellightcurve(params, t, tfunc=occultuniform, nlimb=0, nchan=0):
     eclipse_times = (((t - te) % per) < sep/2.) + (((t - te) % per) > (per - sep/2.))
 
     #pdb.set_trace()
-    
+
     # Model phase curve flux
     def phaseflux(time):
         return 0.5*(fbright + fdark) + \
@@ -1612,7 +1610,7 @@ def modellightcurve(params, t, tfunc=occultuniform, nlimb=0, nchan=0):
     ## The following code is deprecated with the creation of z2dt()
     #t14 = (per/np.pi) * np.arcsin(ra * np.sqrt((1. + k**2) - b**2)/np.sin(np.arccos(cosi)))
     #t23 = (per/np.pi) * np.arcsin(ra * np.sqrt((1. - k**2) - b**2)/np.sin(np.arccos(cosi)))
-    #t12 = 0.5 * (t14 - t23) 
+    #t12 = 0.5 * (t14 - t23)
 
     #zzz = [t2z(tt, per, (180./np.pi)*np.arccos(b * ra), thist, 1./ra, ecc) for thist in [te-t14, te, te+t14]]
     #aaa,bbb = residualz(te-t14, 1. + k), residualz(te, 1. + k)
@@ -1643,7 +1641,7 @@ def modellightcurve(params, t, tfunc=occultuniform, nlimb=0, nchan=0):
         inscale = np.zeros(ze.shape, dtype=float)
         tei = t[eclipse_ingress]
         inscale[eclipse_ingress] = ((fstar + phaseflux(t6)) * (1. - feclip) - fstar) * \
-            ((tei - tei.min()) / (tei.max() - tei.min())) 
+            ((tei - tei.min()) / (tei.max() - tei.min()))
     else:
         inscale = 0.
 
@@ -1652,14 +1650,14 @@ def modellightcurve(params, t, tfunc=occultuniform, nlimb=0, nchan=0):
         egscale = np.zeros(ze.shape, dtype=float)
         tee = t[eclipse_egress]
         egscale[eclipse_egress] = ((fstar + phaseflux(t7)) * (1. - feclip) - fstar) * \
-            ((tee - tee.max()) / (tee.max() - tee.min())) 
+            ((tee - tee.max()) / (tee.max() - tee.min()))
     else:
         egscale = 0.
 
     # Now compute the full light curve:
     full_curve = transit_curve * eclip
     full_curve[eclipse_times * (ze < (1. - k))] = fstar
-    full_curve = full_curve - inscale + egscale 
+    full_curve = full_curve - inscale + egscale
 
     if nchan>0:
         if len(t.shape)==2:  # Data entered as 2D
@@ -1688,7 +1686,7 @@ def modeleclipse_simple(params, tparams, func, t):
 
         the stellar radius in units of orbital distance (Rstar/a),
 
-        planet-to-star radius ratio (Rp/Rstar), 
+        planet-to-star radius ratio (Rp/Rstar),
 
         orbital period (same units as Tc and t)
 
@@ -1699,7 +1697,7 @@ def modeleclipse_simple(params, tparams, func, t):
     # 2011-05-31 08:35 IJMC: Created anew, specifically for eclipses.
 
     ecc = 0.
-   
+
 
     if (tparams[0] * tparams[1]) > 1:  # cos(i) > 1: impossible!
         return -1
@@ -1740,13 +1738,13 @@ def modeleclipse_simple14(params, tparams, func, t):
 
         the stellar radius in units of orbital distance (Rstar/a),
 
-        planet-to-star radius ratio (Rp/Rstar), 
+        planet-to-star radius ratio (Rp/Rstar),
 
         orbital period (same units as Tc and t)
 
       func -- function to fit to data; presumably :func:`transit.occultuniform`
 
-      t -- numpy array.  Time of observations.  
+      t -- numpy array.  Time of observations.
          Must either be of size (14xN), or if a 1D vector then
          t.reshape(14, N) must correctly reformat the data into data
          streams at 14 separate positions.
@@ -1759,7 +1757,7 @@ def modeleclipse_simple14(params, tparams, func, t):
     params = params[14::]
 
     cparams[0] = 1./(1.+cparams[1::]).prod() - 1.
-    
+
     tis1D = False # we want "t" to be 2D
 
     if len(t.shape)==1:
@@ -1771,10 +1769,10 @@ def modeleclipse_simple14(params, tparams, func, t):
 
     # Get the vanilla transit light curve:
     model = modeleclipse_simple(params, tparams, func, t)
-    
+
     # Apply sensitivity calibrations:
     model *= (1. + cparams)
-    
+
     if tis1D:
         model = model.ravel()
 
@@ -1802,12 +1800,12 @@ def modeltransit14(params, func, per, t):
 
         the stellar radius in units of orbital distance (Rstar/a),
 
-        planet-to-star radius ratio (Rp/Rstar), 
+        planet-to-star radius ratio (Rp/Rstar),
 
         stellar flux (F0),
 
         the limb-darkening parameters u1 and u2:
-             
+
           EITHER:
             gamma1,  gamma2  -- quadratic limb-darkening coefficients
 
@@ -1821,7 +1819,7 @@ def modeltransit14(params, func, per, t):
 
       per -- float.  Orbital period, in days.
 
-      t -- numpy array.  Time of observations.  
+      t -- numpy array.  Time of observations.
          Must either be of size (14xN), or if a 1D vector then
          t.reshape(14, N) must correctly reformat the data into data
          streams at 14 separate positions.
@@ -1836,7 +1834,7 @@ def modeltransit14(params, func, per, t):
     tparams = params[14::]
 
     cparams[0] = 1./(1.+cparams[1::]).prod() - 1.
-    
+
     tis1D = False # we want "t" to be 2D
 
     if len(t.shape)==1:
@@ -1850,10 +1848,10 @@ def modeltransit14(params, func, per, t):
     model = modeltransit(tparams, func, per, t)
     if np.sum(model + 1)==0:
         model = -np.ones(t.shape, dtype=float)
-    
+
     # Apply sensitivity calibrations:
     model *= (1. + cparams)
-    
+
     if tis1D:
         model = model.ravel()
 
@@ -1918,9 +1916,9 @@ def mcmc_transit_single(flux, sigma, t, per, func, params, stepsize, numit, nste
 
         chisq: 1D array
                 Chi-squared value at each step
-    
+
     :REFERENCES:
-        Numerical Recipes, 3rd Edition (Section 15.8);  Wikipedia    
+        Numerical Recipes, 3rd Edition (Section 15.8);  Wikipedia
     """
     # 2011-05-14 16:06 IJMC: Adapted from upsand phase curve routines;
     #                        also adapting Agol et al. 2010's Spitzer
@@ -1978,7 +1976,7 @@ def mcmc_transit_single(flux, sigma, t, per, func, params, stepsize, numit, nste
             #COMPUTE NEXT CHI SQUARED AND ACCEPTANCE VALUES
             zmodel     = modeltransit(nextp, func, per, t)
 
-            nextchisq  = (((zmodel - flux)**2)*weights).ravel().sum() 
+            nextchisq  = (((zmodel - flux)**2)*weights).ravel().sum()
 
             accept = np.exp(0.5 * (currchisq - nextchisq))
             if (accept >= 1) or (np.random.uniform(0, 1) <= accept):
@@ -2049,9 +2047,9 @@ def mcmc_transit_single14(flux, sigma, t, per, func, params, stepsize, numit, ns
 
         chisq: 1D array
                 Chi-squared value at each step
-    
+
     :REFERENCES:
-        Numerical Recipes, 3rd Edition (Section 15.8);  Wikipedia    
+        Numerical Recipes, 3rd Edition (Section 15.8);  Wikipedia
     """
     # 2011-05-27 13:46 IJMC: Created
     # 2011-06-23 13:26 IJMC: Now accepts 2D covariance stepsize inputs.
@@ -2110,7 +2108,7 @@ def mcmc_transit_single14(flux, sigma, t, per, func, params, stepsize, numit, ns
             #COMPUTE NEXT CHI SQUARED AND ACCEPTANCE VALUES
             zmodel     = modeltransit14(nextp, func, per, t)
 
-            nextchisq  = (((zmodel - flux)**2)*weights).ravel().sum() 
+            nextchisq  = (((zmodel - flux)**2)*weights).ravel().sum()
 
             accept = np.exp(0.5 * (currchisq - nextchisq))
             if (accept >= 1) or (np.random.uniform(0, 1) <= accept):
@@ -2130,7 +2128,7 @@ def mcmc_transit_single14(flux, sigma, t, per, func, params, stepsize, numit, ns
 
 def mcmc_eclipse(flux, sigma, t, func, params, tparams, stepsize, numit, nstep=1, posdef=None, holdfixed=None):
     """MCMC for 3-parameter eclipse function with KNOWN orbit
-    
+
     :INPUTS:
         flux : 1D array
                     Contains dependent data
@@ -2144,7 +2142,7 @@ def mcmc_eclipse(flux, sigma, t, func, params, tparams, stepsize, numit, nstep=1
         func : function
                     Function to model eclipse (e.g., :func:`transit.occultuniform`)
 
-        params : parameters to be fit:  
+        params : parameters to be fit:
           EITHER:
              [T_center, depth, Fstar]
           OR:
@@ -2182,9 +2180,9 @@ def mcmc_eclipse(flux, sigma, t, func, params, tparams, stepsize, numit, nstep=1
 
         chisq: 1D array
                 Chi-squared value at each step
-    
+
     :REFERENCES:
-        Numerical Recipes, 3rd Edition (Section 15.8);  Wikipedia    
+        Numerical Recipes, 3rd Edition (Section 15.8);  Wikipedia
     """
     # 2011-05-31 10:48 IJMC: Created from mcmc_transit
     # 2011-11-02 17:14 IJMC: Now cast numit as int
@@ -2239,7 +2237,7 @@ def mcmc_eclipse(flux, sigma, t, func, params, tparams, stepsize, numit, nstep=1
             #COMPUTE NEXT CHI SQUARED AND ACCEPTANCE VALUES
             zmodel     = modelfunc(nextp, tparams, func, t)
 
-            nextchisq  = (((zmodel - flux)**2)*weights).ravel().sum() 
+            nextchisq  = (((zmodel - flux)**2)*weights).ravel().sum()
 
             accept = np.exp(0.5 * (currchisq - nextchisq))
             if (accept >= 1) or (np.random.uniform(0, 1) <= accept):
@@ -2258,7 +2256,7 @@ def mcmc_eclipse(flux, sigma, t, func, params, tparams, stepsize, numit, nstep=1
     return allparams, bestp, numaccept, allchi
 
 
-#def t14(per, ars, p0, 
+#def t14(per, ars, p0,
 #
     #t14 = (per/np.pi) * np.arcsin(ra * np.sqrt((1. + k**2) - b**2)/np.sin(np.arccos(cosi)))
     #t23 = (per/np.pi) * np.arcsin(ra * np.sqrt((1. - k**2) - b**2)/np.sin(np.arccos(cosi)))
@@ -2355,7 +2353,7 @@ def analyzetransit_general(params, NL, NP, time, data, weights=None, dopb=False,
     :INPUTS:
      params : sequence
        A guess at the best-fit model transit parameters, to be passed
-       to :func:`modeltransit_general`.  
+       to :func:`modeltransit_general`.
 
        If 'svs' are passed in (see below), then params should have an
        additional value concatenated on the end as the coefficient for
@@ -2513,7 +2511,7 @@ def analyzetransit_general(params, NL, NP, time, data, weights=None, dopb=False,
         #pbmodels = [fitargs[0](par0, *fitargs[1:-3]) for par0 in pb_fits]
 
         bestparams = pb_fits[0].copy()
-        
+
     else:
         pb_fits = None
 
@@ -2535,7 +2533,7 @@ def analyzetransit_general(params, NL, NP, time, data, weights=None, dopb=False,
                 else:
                     covar[ii,ii] = gaussprior[ii][1]**2
 
-    
+
         # Pick walker starting positions, excluding bad points:
         p0 = np.random.multivariate_normal(bestparams, covar, nwalkers*5)
         badp0 = ((p0[:,1] < 0) + (p0[:,2] < 0) + (p0[:,3] < 0) + (p0[:,4] < 0) + p0[:,2] > 90)
@@ -2610,7 +2608,7 @@ def analyzetransit_general(params, NL, NP, time, data, weights=None, dopb=False,
     bestparams = lsq_fit[0]
     covar = lsq_fit[1]
     bestchisq = pc.errfunc(bestparams, *fitargs)
-    
+
     finalmodel = transit.modeltransit_general(bestparams, *fitargs[1:-3])
 
     return lsq_fit, pb_fits, sampler, weights, finalmodel
@@ -2642,7 +2640,7 @@ def bls_simple(times, flux, prange, dlogper=0.0004, nbins=150, maxwid=10, nthrea
 
       maxwid : positive int
         Maximum width of the transit signal sought, in terms of the
-        number of phase bins.  
+        number of phase bins.
 
       nthreads : positive int
         Number of multiprocessing threads to use.
